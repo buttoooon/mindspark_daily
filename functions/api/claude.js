@@ -11,15 +11,22 @@ export async function onRequestPost(context) {
   try {
     const body = await context.request.json();
 
+    // Remove web_search tool - not supported in all contexts
+    const cleanBody = {
+      model: body.model || 'claude-sonnet-4-6',
+      max_tokens: body.max_tokens || 1000,
+      system: body.system,
+      messages: body.messages,
+    };
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
-        'anthropic-beta': 'web-search-2025-03-05',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(cleanBody),
     });
 
     const data = await response.json();
